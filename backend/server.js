@@ -7,6 +7,8 @@ dotenv.config(); // load env vars
 
 const app = express();
 const PORT = process.env.PORT;
+//Informing  to the express that json data is coming from the front-end
+app.use(express.json())
 
 app.use('/api/auth', authRoute);
 // app.get('/', (req, res) => {
