@@ -124,7 +124,7 @@ export const deleteComment = async (req, res) => {
         }
 
         post.comments = post.comments.filter( comment => comment._id.toString() !== commentId );
-        await post.save();
+        await post.save(); // Save the updated post without the deleted comment
         res.status(200).json({ message: "Comment deleted successfully" });
 
     } catch (error) {
