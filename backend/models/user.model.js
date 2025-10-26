@@ -2,57 +2,57 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
 	{
-		username: {
+		username: { //unique username for the user
 			type: String,
 			required: true,
 			unique: true,
 		},
-		fullName: {
+		fullName: { //full name of the user
 			type: String,
 			required: true,
 		},
-		password: {
+		password: { //password for the user account
 			type: String,
 			required: true,
 			minLength: 6,
 		},
-		email: {
+		email: { //unique email for the user
 			type: String,
 			required: true,
 			unique: true,
 		},
-		followers: [
+		followers: [ //Who all are following me
 			{
 				type: mongoose.Schema.Types.ObjectId,
 				ref: "User",
 				default: [],
 			},
 		],
-		following: [
+		following: [ //List of the users that I'm following
 			{
 				type: mongoose.Schema.Types.ObjectId,
 				ref: "User",
 				default: [],
 			},
 		],
-		profileImg: {
+		profileImg: { //profile image of the user
 			type: String,
 			default: "",
 		},
-		coverImg: {
+		coverImg: { //cover image of the user
 			type: String,
 			default: "",
 		},
-		bio: {
+		bio: { //bio of the user
 			type: String,
 			default: "",
 		},
 
-		link: {
+		link: { //personal website link of the user
 			type: String,
 			default: "",
 		},
-		likedPosts: [
+		likedPosts: [ //Posts liked by the user
 			{
 				type: mongoose.Schema.Types.ObjectId,
 				ref: "Post",

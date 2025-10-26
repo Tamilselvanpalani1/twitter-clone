@@ -132,3 +132,42 @@ export const deleteComment = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 }
+
+export const likeUnlikePost = async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const userId = req.user._id;
+
+        const post = await Post.findOne({ _id: postId });
+        if(!post) {
+            return res.status(404).json({ error: "Post not found" });
+        }
+
+        const userLikedPost = post.likes.includes(userId);
+        if(userLikedPost) {
+            // Unlike the post
+            await Post.updateOne({ _id: postId }, { $pull: { likes: userId } }); // Remove userId from likes array
+            res.status(200).json({ message: "Post unliked successfully" });
+        }
+        else{
+            // Like the post
+            post.likes.push(userId); // Add userId to likes array
+            // await Post.updateOne({ _id: postId }, { $push: { likes: userId } }); // Add userId to likes array
+            await post.save();
+
+            // Create notification for like
+            const newNotification = new Notification({
+                type: "like",
+                from: userId,
+                to: post.user, // Notify the post owner
+                post: postId
+            });
+            await newNotification.save(); // Save notification for the post owner
+
+            res.status(200).json({ message: "Post liked successfully" });
+        }
+    } catch (error) {
+        console.log('Error in like/unlike post controller:', error);
+        res.status(500).json({ error: error.message });
+    }
+}

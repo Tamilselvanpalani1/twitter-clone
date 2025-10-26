@@ -2,24 +2,24 @@ import mongoose from "mongoose";
 
 const postSchema = new mongoose.Schema(
 	{
-		user: {
+		user: { //who created the post
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",
 			required: true,
 		},
-		text: {
+		text: { //text content of the post
 			type: String,
 		},
-		img: {
+		img: { //image URL of the post
 			type: String,
 		},
-		likes: [
+		likes: [ //users who liked the post
 			{
 				type: mongoose.Schema.Types.ObjectId,
 				ref: "User",
 			},
 		],
-		comments: [
+		comments: [ //comments on the post
 			{
 				text: {
 					type: String,
