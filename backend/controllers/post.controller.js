@@ -147,12 +147,14 @@ export const likeUnlikePost = async (req, res) => {
         if(userLikedPost) {
             // Unlike the post
             await Post.updateOne({ _id: postId }, { $pull: { likes: userId } }); // Remove userId from likes array
+            await User.updateOne({ _id: userId }, { $pull: { likedPosts: postId } }); // Remove postId from user's likedPosts array
             res.status(200).json({ message: "Post unliked successfully" });
         }
         else{
             // Like the post
             post.likes.push(userId); // Add userId to likes array
             // await Post.updateOne({ _id: postId }, { $push: { likes: userId } }); // Add userId to likes array
+            await User.updateOne({ _id: userId }, { $push: { likedPosts: postId } }); // Add postId to user's likedPosts array
             await post.save();
 
             // Create notification for like
@@ -174,13 +176,46 @@ export const likeUnlikePost = async (req, res) => {
 
 export const getAllPosts = async (req, res) => {
     try {
-        const posts = await Post.find().sort({ createdAt: -1 }); // Fetch all posts sorted by creation date (descending order)
+        const posts = await Post.find().sort({ createdAt: -1 }).populate({
+            path: "user", //populate user details
+            select: "-password" // Exclude password field
+        })
+        .populate({
+            path: "comments.user", //populate user details in comments
+            select: ["-password", "-email", "-following", "-followers", "-bio", "-link"] // Exclude password and email fields
+        }) // Fetch all posts from the database, sorted by creation date (newest first) and populate user details
+
         if(posts.length === 0) {
             return res.status(200).json([]); // Return empty array if no posts found
         }
         res.status(200).json(posts); // Return the list of posts
+
     } catch (error) {
         console.log('Error in get all posts controller:', error);
+        res.status(500).json({ error: error.message });
+    }
+}
+
+export const getLikedPosts = async (req, res) => {
+    try {
+        const userId = await req.params.id; // Get the user ID from the request parameters
+
+        const user = await User.findById({ _id: userId });
+        if(!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        const likedPosts = await Post.find({ _id: { $in: user.likedPosts } }) // Find posts where _id is in the user's likedPosts array
+            .populate({
+                path: "user", // Populate user details
+                select: "-password" // Exclude password field
+            })
+            .populate({
+                path: "comments.user", // Populate user details in comments
+                select: ["-password", "-email", "-following", "-followers", "-bio", "-link"] // Exclude password and email fields
+            })
+            
+    } catch (error) {
+        console.log('Error in get liked posts controller:', error);
         res.status(500).json({ error: error.message });
     }
 }
