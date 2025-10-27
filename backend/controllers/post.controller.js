@@ -182,7 +182,7 @@ export const getAllPosts = async (req, res) => {
         })
         .populate({
             path: "comments.user", //populate user details in comments
-            select: ["-password", "-email", "-following", "-followers", "-bio", "-link"] // Exclude password and email fields
+            select: ["-password"] // Exclude password and email fields
         }) // Fetch all posts from the database, sorted by creation date (newest first) and populate user details
 
         if(posts.length === 0) {
@@ -211,11 +211,64 @@ export const getLikedPosts = async (req, res) => {
             })
             .populate({
                 path: "comments.user", // Populate user details in comments
-                select: ["-password", "-email", "-following", "-followers", "-bio", "-link"] // Exclude password and email fields
+                select: ["-password"] // Exclude password and email fields
             })
-            
+
     } catch (error) {
         console.log('Error in get liked posts controller:', error);
+        res.status(500).json({ error: error.message });
+    }
+}
+
+export const getFollowingUsersPosts = async (req, res) => {
+    try {
+        const userId = req.user._id; // Get the logged-in user's ID from the protectRoute middleware
+        const user = await User.findById({ _id: userId }); // Fetch the user from the database
+        if(!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const following = user.following; // Get the list of user IDs that the current user is following
+        const feedPosts = await Post.find({ user: { $in: following } }) // Find posts from other users that the current user is following
+            .sort({ createdAt: -1 }) // Sort posts by creation date (newest first)
+            .populate({
+                path: "user", // Populate user details
+                select: "-password" // Exclude password field
+            })
+            .populate({
+                path: "comments.user", // Populate user details in comments
+                select: ["-password"] // Exclude password and email fields
+            })
+        res.status(200).json(feedPosts); // Return the list of posts from followed users
+
+    } catch (error) {
+        console.log('Error in get following posts controller:', error);
+        res.status(500).json({ error: error.message });        
+    }
+}
+
+export const getUserPosts = async (req, res) => {
+    try {
+        const { username } = req.params; // Get the username from the request parameters
+        const user = await User.findOne({ username: username });
+        if(!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const posts = await Post.find({ user: user._id }) // Find posts created by the specified user
+            .sort({ createdAt: -1 }) // Sort posts by creation date (newest first)
+            .populate({
+                path: "user", // Populate user details
+                select: "-password" // Exclude password field
+            })
+            .populate({
+                path: "comments.user", // Populate user details in comments
+                select: ["-password"] // Exclude password and email fields
+            })
+        res.status(200).json(posts); // Return the list of posts created by the specified user
+
+    } catch (error) {
+        console.log('Error in get user posts controller:', error);
         res.status(500).json({ error: error.message });
     }
 }
