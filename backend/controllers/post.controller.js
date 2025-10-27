@@ -171,3 +171,16 @@ export const likeUnlikePost = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 }
+
+export const getAllPosts = async (req, res) => {
+    try {
+        const posts = await Post.find().sort({ createdAt: -1 }); // Fetch all posts sorted by creation date (descending order)
+        if(posts.length === 0) {
+            return res.status(200).json([]); // Return empty array if no posts found
+        }
+        res.status(200).json(posts); // Return the list of posts
+    } catch (error) {
+        console.log('Error in get all posts controller:', error);
+        res.status(500).json({ error: error.message });
+    }
+}
