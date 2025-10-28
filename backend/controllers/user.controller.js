@@ -119,7 +119,7 @@ export const updateUser = async (req, res) => {
 		let user = await User.findById(userId); // Fetch the user from the database
 
 		if (!user) {
-			return res.status(400).json({ error: "User not found" });
+			return res.status(404).json({ error: "User not found" });
 		}
 
 		if((!currentPassword && newPassword) || (currentPassword && !newPassword)) {
