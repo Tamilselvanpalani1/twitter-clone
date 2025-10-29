@@ -7,10 +7,9 @@ module.exports = {
   theme: {
     extend: {},
   },
-  plugins: [
-    require("daisyui"), // correct CommonJS syntax for CRA
-  ],
+  plugins: [require("daisyui")],
   daisyui: {
-    themes: ["light", "dark", "cupcake"], // optional
+    themes: ["light", "cupcake"], // same as daisyUI portal
   },
 };
+
