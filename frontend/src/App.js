@@ -1,10 +1,21 @@
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import HomePage from './pages/home/HomePage';
+import LoginPage from './pages/auth/login/LoginPage';
+import SignUpPage from './pages/auth/signup/SignUpPage';
+
 function App() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-base-200" data-theme="dark">
-      <h1 className="text-3xl font-bold mb-6 btn btn-outline-success">Welcome to the Twitter Clone</h1>
-      <button class="btn btn-outline btn-success">Success</button>
+    <div className="App flex max-w-6xl mx-auto" data-theme="dark">
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
+      </Routes>
     </div>
   );
 }
 
 export default App;
+
+
