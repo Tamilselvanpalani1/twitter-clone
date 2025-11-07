@@ -8,6 +8,9 @@ import connectDB from './db/connectDb.js' // importtig DB
 import cookieParser from 'cookie-parser'; //importting cookieparser
 import cloudinary from 'cloudinary'; //importing cloudinary
 
+// Create Express app
+const app = express();
+
 // Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -16,12 +19,18 @@ cloudinary.config({
 })
 dotenv.config(); // load env vars
 
-const app = express();
+//CORS middleware
+import cors from 'cors';
+app.use(cors({
+  origin: 'http://localhost:3000', // frontend URL
+  credentials: true, // allow cookies to be sent
+}))
 const PORT = process.env.PORT;
 //Informing  to the express that json data is coming from the front-end
 app.use(express.json())
 //Middleware - informing express that we are going to use the cookie parser
 app.use(cookieParser())
+app.use(express.urlencoded({ extended: true })); // to handle form data
 
 app.use('/api/auth', authRoute);
 app.use('/api/users', userRoute); // Example for user routes
