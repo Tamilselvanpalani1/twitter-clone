@@ -9,6 +9,7 @@ import { MdPassword } from "react-icons/md";
 import { MdDriveFileRenameOutline } from "react-icons/md";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { baseUrl } from '../../../constant/url.js';
 
 const SignUpPage = () => {
 	const [formData, setFormData] = useState({
@@ -20,10 +21,10 @@ const SignUpPage = () => {
 
 	const queryClient = useQueryClient();
 
-	const { mutate, isError, isPending, error } = useMutation({
+	const { mutate: signup, isError, isPending, error } = useMutation({
 		mutationFn: async ({ email, username, fullName, password }) => {
 			try {
-				const res = await fetch("/api/auth/signup", {
+				const res = await fetch(`${baseUrl}/api/auth/signup`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -40,7 +41,8 @@ const SignUpPage = () => {
 				throw error;
 			}
 		},
-		onSuccess: () => {
+		onSuccess: (data) => {
+			console.log("✅ Signup success:", data);
 			toast.success("Account created successfully");
 
 			{
@@ -52,7 +54,7 @@ const SignUpPage = () => {
 
 	const handleSubmit = (e) => {
 		e.preventDefault(); // page won't reload
-		mutate(formData);
+		signup(formData);
 	};
 
 	const handleInputChange = (e) => {
