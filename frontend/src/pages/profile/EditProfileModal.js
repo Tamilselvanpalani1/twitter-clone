@@ -15,7 +15,7 @@ const EditProfileModal = () => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
 
-	return (
+	return (     
 		<>
 			<button
 				className='btn btn-outline rounded-full btn-sm'
