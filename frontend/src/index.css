@@ -23,3 +23,6 @@
   border: 0.5px solid rgb(24, 24, 24);
   color: rgb(24, 24, 24);
 }
+body{
+  background-color: gray;
+}
