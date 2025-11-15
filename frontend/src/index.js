@@ -8,7 +8,14 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({ // Create a QueryClient instance
+  defaultOptions: { // Set default options for queries
+    queries: { // Options for queries
+      refetchOnWindowFocus: false, // Disable refetch on window focus
+      retry: 1, // Retry failed requests once
+    },
+  },
+});
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

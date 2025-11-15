@@ -41,7 +41,10 @@ const LoginPage = () => {
 		onSuccess: (data) => {
 			console.log("✅ Login success:", data);
 			toast.success("Logged in successfully");
-			queryClient.invalidateQueries({ queryKey: ["authUser"] }); //to refetch the authUser data after login
+			 //to refetch the authUser data after login
+			queryClient.invalidateQueries({ 
+				queryKey: ["authUser"]
+			}); 
 		}
 	})
     // Handle form submission

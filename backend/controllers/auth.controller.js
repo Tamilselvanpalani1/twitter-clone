@@ -122,7 +122,7 @@ export const logout = async (req, res) => {
 
 		// Send confirmation response
 		res.status(200).json({ message: "Logged out successfully" });
-	} catch (error) {
+	} catch (error) { 
 		console.log("Error in logout controller", error.message);
 		res.status(500).json({ error: "Internal Server Error" });
 	}
@@ -135,7 +135,7 @@ export const logout = async (req, res) => {
 export const getMe = async (req, res) => {
 	try {
 		// Use the user ID from protectRoute middleware (req.user._id)
-		const user = await User.findById(req.user._id).select("-password");
+		const user = await User.findById({_id: req.user._id}).select("-password");
 
 		// Respond with user profile
 		res.status(200).json(user);
