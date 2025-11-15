@@ -7,7 +7,7 @@ import Sidebar from './components/common/Sidebar';
 import RightPanel from './components/common/RightPanel';
 import NotificationPage from './pages/notification/NotificationPage';
 import ProfilePage from './pages/profile/ProfiePage';
-import { Toaster} from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 import { useQuery } from '@tanstack/react-query';
 import { baseUrl } from './constant/url';
 import LoadingSpinner from './components/common/LoadingSpinner';
