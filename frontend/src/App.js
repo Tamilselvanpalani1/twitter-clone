@@ -37,6 +37,7 @@ function App() {
         throw error;
       } 
     },
+    return: false
   })
   console.log(authUser);
   

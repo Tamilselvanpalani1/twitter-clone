@@ -34,7 +34,7 @@ const Sidebar = () => {
 		onSuccess: () => {
 			toast.success("Logged out successfully");
 			queryClient.invalidateQueries({ 
-				queryKey: ["authUser"] 
+				queryKey: ["authUser"]      
 			}); //to refetch the authUser data after logout
 		},
 		onError: () => {
