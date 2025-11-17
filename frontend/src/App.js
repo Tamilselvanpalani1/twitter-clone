@@ -12,6 +12,8 @@ import { useQuery } from '@tanstack/react-query';
 import { baseUrl } from './constant/url';
 import LoadingSpinner from './components/common/LoadingSpinner';
 
+// useQuery - Runs automatically when the component mounts, if anything needs to be change
+// useMutation - Runs only when you manually call mutate(), Does not run automatically
 function App() {
   const {data :authUser, isLoading} = useQuery({ 
     queryKey: ['authUser'], // Changed from 'currentUser' to 'authUser' for consistency

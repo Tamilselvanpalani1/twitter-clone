@@ -4,9 +4,10 @@ import userRoute from './routes/user.route.js'; // Example for user routes
 import postRoute from './routes/post.route.js'; // Example for post routes
 import notificationRoute from './routes/notification.route.js'; // Example for notification routes
 import dotenv from 'dotenv'; // ✅ Use `import` not `require`
+dotenv.config(); // load env vars
 import connectDB from './db/connectDb.js' // importtig DB
 import cookieParser from 'cookie-parser'; //importting cookieparser
-import cloudinary from 'cloudinary'; //importing cloudinary
+import { v2 as cloudinary } from 'cloudinary'; //importing cloudinary
 
 // Create Express app
 const app = express();
@@ -17,7 +18,6 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET_KEY
 })
-dotenv.config(); // load env vars
 
 //CORS middleware
 import cors from 'cors';
@@ -27,7 +27,11 @@ app.use(cors({
 }))
 const PORT = process.env.PORT;
 //Informing  to the express that json data is coming from the front-end
-app.use(express.json())
+app.use(express.json(
+  {
+    limit : "5mb" // file max-size should be lessthan 5mb from the front-end - default value 100kb
+  }
+))
 //Middleware - informing express that we are going to use the cookie parser
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: true })); // to handle form data
