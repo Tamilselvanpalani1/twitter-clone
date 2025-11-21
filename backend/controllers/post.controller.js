@@ -221,7 +221,7 @@ export const getLikedPosts = async (req, res) => {
                 path: "comments.user", // Populate user details in comments
                 select: ["-password"] // Exclude password and email fields
             })
-
+        res.status(200).json(likedPosts); // Return the list of liked posts
     } catch (error) {
         console.log('Error in get liked posts controller:', error);
         res.status(500).json({ error: error.message });
