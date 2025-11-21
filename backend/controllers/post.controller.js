@@ -86,6 +86,7 @@ export const createComment = async (req, res) => {
             user: userId // Reference to the User model
         };
 
+        
         post.comments.push(Comment); // Add the comment to the post's comments array in the post model
         await post.save();
         res.status(201).json(post); // Return the updated post with the new comment
@@ -148,7 +149,11 @@ export const likeUnlikePost = async (req, res) => {
             // Unlike the post
             await Post.updateOne({ _id: postId }, { $pull: { likes: userId } }); // Remove userId from likes array
             await User.updateOne({ _id: userId }, { $pull: { likedPosts: postId } }); // Remove postId from user's likedPosts array
-            res.status(200).json({ message: "Post unliked successfully" });
+            const updatedLikes = post.likes.filter((id) => id.toString() !== userId.toString());
+            res.status(200).json({
+                likes: updatedLikes,
+                action: "unliked"
+            });
         }
         else{
             // Like the post
@@ -165,8 +170,11 @@ export const likeUnlikePost = async (req, res) => {
                 post: postId
             });
             await newNotification.save(); // Save notification for the post owner
-
-            res.status(200).json({ message: "Post liked successfully" });
+            const updatedLikes = post.likes;
+            res.status(200).json({
+                likes: updatedLikes,
+                action: "liked"
+            }); // Return updated likes array
         }
     } catch (error) {
         console.log('Error in like/unlike post controller:', error);

@@ -8,7 +8,8 @@ import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { baseUrl } from "../../constant/url.js"
 import LoadingSpinner from "./LoadingSpinner";
-import toast from "react-hot-toast"
+import toast from "react-hot-toast";
+import { formatPostDate } from "../../utils/db/date/index.js";
 
 const Post = ({ post }) => {
 	const [comment, setComment] = useState("");
@@ -17,6 +18,7 @@ const Post = ({ post }) => {
 	})
 	const queryClient = useQueryClient();
 	console.log("AuthUser", authUser);
+
 	const {mutate :deletePost, isPending :isDelete} = useMutation({
 		mutationFn : async () => {
 			try {
@@ -41,15 +43,90 @@ const Post = ({ post }) => {
 			queryClient.invalidateQueries({queryKey:["posts"]})
 		}
 	})
+
+	const { mutate :likePost, isPending :isLiking } = useMutation({
+		mutationFn : async () => {
+			try {
+				const res = await fetch(`${baseUrl}/api/posts/like/${post._id}`, {
+					method: "POST",
+					credentials: "include",
+					headers: {
+						"Content-Type" : "application/json"
+					}
+				})
+				const data = await res.json();
+				if(!res.ok){
+					throw new Error(data.error || "Something went wrong")
+				}
+				return data;
+			} catch (error) {
+				throw error;
+			}
+		},
+		onSuccess: (data) => {
+			if(data.action === "liked"){
+				toast.success("Post Liked Successfully")
+			}
+			if(data.action === "unliked"){
+				toast.success("Post Unliked Successfully")
+			}
+			// queryClient.invalidateQueries({queryKey:["posts"]}) //refetch the posts to update the like count
+			// Instead of refetching all posts, we can optimistically update the specific post's like count
+			//setQueryData - allows us to directly update the cached data for a specific query
+			//setQueryData takes two arguments - queryKey and updater function
+			queryClient.setQueryData(['posts'], (oldPosts) => {
+				return oldPosts.map((p) => {
+					if (p._id === post._id) {
+						return { ...p, likes: data.likes };
+					}
+					return p;
+				})
+			})
+		},
+		onError : (error) => {
+			toast.error(error.message)
+		}
+	})
+
+	const { mutate: commentPost, isPending : isCommenting} = useMutation({
+		mutationFn: async () => {
+			try {
+				const res = await fetch(`${baseUrl}/api/posts/comment/${post._id}`, {
+					method: "POST",
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({ text: comment })
+				})
+				const data = await res.json();
+				if(!res.ok){
+					throw new Error(data.error || "Something went wrong")
+				}
+				return data;
+			} catch (error) {
+				throw error;
+			}
+		},
+		onSuccess: () => {
+			toast.success("Comment Posted Successfully")
+			// Clear the comment input field
+			queryClient.invalidateQueries({ queryKey: ["posts"] }) //refetch posts to show the new comment
+			setComment("");
+		},
+		onError: (error) => {
+			toast.error(error.message)
+		}
+	})
 	
 	const postOwner = post.user;
-	const isLiked = false;
+	const isLiked = post.likes.includes(authUser._id); //check if the logged in user has liked the post
 
 	const isMyPost = authUser._id === post.user._id; //crud operations only visible for the logged in user for the posts
 
-	const formattedDate = "1h";
+	const formattedDate = formatPostDate(post.createdAt); //format the post date
 
-	const isCommenting = false;
+	// const isCommenting = true;
 
 	const handleDeletePost = () => {
 		deletePost(); //calling the delete post func
@@ -57,9 +134,13 @@ const Post = ({ post }) => {
 
 	const handlePostComment = (e) => {
 		e.preventDefault();
+		commentPost();
 	};
 
-	const handleLikePost = () => {};
+	const handleLikePost = () => {
+		if(isLiking) return; //prevent multiple like requests
+		likePost();
+	};
 
 	return (
 		<>
@@ -155,7 +236,7 @@ const Post = ({ post }) => {
 										/>
 										<button className='btn btn-primary rounded-full btn-sm text-white px-4'>
 											{isCommenting ? (
-												<span className='loading loading-spinner loading-md'></span>
+												<LoadingSpinner size='sm' />
 											) : (
 												"Post"
 											)}
@@ -171,14 +252,17 @@ const Post = ({ post }) => {
 								<span className='text-sm text-slate-500 group-hover:text-green-500'>0</span>
 							</div>
 							<div className='flex gap-1 items-center group cursor-pointer' onClick={handleLikePost}>
-								{!isLiked && (
+								{isLiking && <LoadingSpinner size="sm"/>}
+								{!isLiked && !isLiking && (
 									<FaRegHeart className='w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500' />
 								)}
-								{isLiked && <FaRegHeart className='w-4 h-4 cursor-pointer text-pink-500 ' />}
+								{isLiked && !isLiking && ( 
+									<FaRegHeart className='w-4 h-4 cursor-pointer text-pink-500 ' />
+								)}
 
 								<span
-									className={`text-sm text-slate-500 group-hover:text-pink-500 ${
-										isLiked ? "text-pink-500" : ""
+									className={`text-sm group-hover:text-pink-500 ${
+										isLiked ? "text-pink-500" : "text-slate-500"
 									}`}
 								>
 									{post.likes.length}
