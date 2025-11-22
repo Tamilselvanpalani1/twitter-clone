@@ -47,7 +47,7 @@ export const followUnFollowUser = async (req, res) => {
 			return res.status(404).json({ error: "User not found" });
 		}
 
-		const isFollowing = userToModify.followers.includes(id); //checking whether user is already followed or not
+		const isFollowing = userToModify.followers.includes(req.user._id); //checking whether user is already followed or not
 
 		if( isFollowing ) {
 			//unfollow
@@ -139,21 +139,21 @@ export const updateUser = async (req, res) => {
 			user.password = hashedPassword; // Update the user's password
 		}
 
-		// if(profileImg) {
-		// 	if(user.profileImg) {
-		// 		// https://res.cloudinary.com/dyfqon1v6/image/upload/v1712997552/zmxorcxexpdbh8r0bkjb.png
-		// 		await cloudinary.uploader.destroy(user.profileImg.split('/').pop().split('.')[0]); // Deleting old profile image from Cloudinary
-		// 	}
-		// 	const uploadedResponse = await cloudinary.uploader.upload(profileImg); // Upload profile image to Cloudinary
-		// 	profileImg = uploadedResponse.secure_url; // Get the URL of the uploaded image and assign it back to profileImg(image string)
-		// }
-		// if(coverImg) {
-		// 	if(user.coverImg) {
-		// 		await cloudinary.uploader.destroy(user.coverImg.split('/').pop().split('.')[0]); // Deleting old cover image from Cloudinary
-		// 	}
-		// 	const uploadedResponse = await cloudinary.uploader.upload(coverImg); // Upload cover image to Cloudinary
-		// 	coverImg = uploadedResponse.secure_url; // Get the URL of the uploaded image and assign it back to coverImg(image string)
-		// }
+		if(profileImg) {
+			if(user.profileImg) {
+				// https://res.cloudinary.com/dyfqon1v6/image/upload/v1712997552/zmxorcxexpdbh8r0bkjb.png
+				await cloudinary.uploader.destroy(user.profileImg.split('/').pop().split('.')[0]); // Deleting old profile image from Cloudinary
+			}
+			const uploadedResponse = await cloudinary.uploader.upload(profileImg); // Upload profile image to Cloudinary
+			profileImg = uploadedResponse.secure_url; // Get the URL of the uploaded image and assign it back to profileImg(image string)
+		}
+		if(coverImg) {
+			if(user.coverImg) {
+				await cloudinary.uploader.destroy(user.coverImg.split('/').pop().split('.')[0]); // Deleting old cover image from Cloudinary
+			}
+			const uploadedResponse = await cloudinary.uploader.upload(coverImg); // Upload cover image to Cloudinary
+			coverImg = uploadedResponse.secure_url; // Get the URL of the uploaded image and assign it back to coverImg(image string)
+		}
 
 		user.fullName = fullName || user.fullName; // Update fullName from req.body if provided or keep existing fullName from DB
 		user.email = email || user.email; // Update email from req.body if provided or keep existing email from DB

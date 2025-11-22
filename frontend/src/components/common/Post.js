@@ -65,10 +65,10 @@ const Post = ({ post }) => {
 		},
 		onSuccess: (data) => {
 			if(data.action === "liked"){
-				toast.success("Post Liked Successfully")
+				toast.success("Post Liked")
 			}
 			if(data.action === "unliked"){
-				toast.success("Post Unliked Successfully")
+				toast.success("Post Unliked")
 			}
 			// queryClient.invalidateQueries({queryKey:["posts"]}) //refetch the posts to update the like count
 			// Instead of refetching all posts, we can optimistically update the specific post's like count

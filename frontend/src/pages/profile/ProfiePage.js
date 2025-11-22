@@ -11,9 +11,12 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { baseUrl } from "../../constant/url";
 import { formatMemberSinceDate } from "../../utils/date/index.js";
+import useFollow from "../../hooks/useFollow.js";
+import LoadingSpinner from "../../components/common/LoadingSpinner.js";
+import useUpdateUserProfile from "../../hooks/useUpdateUserProfile.js";
 
 const ProfilePage = () => {
 	const [coverImg, setCoverImg] = useState(null);
@@ -22,9 +25,16 @@ const ProfilePage = () => {
 
 	const coverImgRef = useRef(null);
 	const profileImgRef = useRef(null);
-	const isMyProfile = true;
 	const { username } = useParams();
 
+	// Hook for updating user profile
+	const { updateProfile, isUpdatingProfile } = useUpdateUserProfile(formData);
+
+	// Get Auth User
+	const {data :authUser} = useQuery({
+		queryKey: ["authUser"]
+	})
+	// Mutation for updating user profile images
 	const { data: user, isLoading, refetch, isRefetching } = useQuery({
 		queryKey: ["userProfile"],
 		queryFn: async () => {
@@ -42,14 +52,14 @@ const ProfilePage = () => {
 				}
 				return data;
 			} catch (error) {
-				throw error;
+				throw error;b  
 			}
 		}
 	});
 
 	useEffect(() => {
 		refetch(); //refetch the data when username changes
-	}, [username, refetch, feedType]); //refetch user data when username param changes
+	}, [username, refetch]); //refetch user data when username param changes
 
 	const membershipDate = formatMemberSinceDate(user?.createdAt);
 
@@ -64,6 +74,10 @@ const ProfilePage = () => {
 			reader.readAsDataURL(file);
 		}
 	};
+
+	const isMyProfile = authUser?._id == user?._id;
+	const {follow, isPending} = useFollow();
+	const amIFollowing = authUser?.following.includes(user?._id);
 
 	return (
 		<>
@@ -133,17 +147,24 @@ const ProfilePage = () => {
 								{!isMyProfile && (
 									<button
 										className='btn btn-outline rounded-full btn-sm'
-										onClick={() => alert("Followed successfully")}
+										onClick={() => {
+											follow(user?._id)
+										}}
 									>
-										Follow
+										{isPending && <LoadingSpinner size="sm" />}
+										{!isPending && amIFollowing && "Unfollow" }
+										{!isPending && !amIFollowing && "Follow" }
 									</button>
 								)}
 								{(coverImg || profileImg) && (
 									<button
 										className='btn btn-primary rounded-full btn-sm text-white px-4 ml-2'
-										onClick={() => alert("Profile updated successfully")}
+										onClick={() => {
+											updateProfile()
+										}}
 									>
-										Update
+										{isUpdatingProfile && <LoadingSpinner size="sm" />}
+										{!isUpdatingProfile && "Update"}
 									</button>
 								)}
 							</div>
