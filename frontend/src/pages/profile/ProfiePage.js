@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, use } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import Posts from "../../components/common/Posts";
@@ -17,6 +17,7 @@ import { formatMemberSinceDate } from "../../utils/date/index.js";
 import useFollow from "../../hooks/useFollow.js";
 import LoadingSpinner from "../../components/common/LoadingSpinner.js";
 import useUpdateUserProfile from "../../hooks/useUpdateUserProfile.js";
+import { set } from "mongoose";
 
 const ProfilePage = () => {
 	const [coverImg, setCoverImg] = useState(null);
@@ -26,9 +27,6 @@ const ProfilePage = () => {
 	const coverImgRef = useRef(null);
 	const profileImgRef = useRef(null);
 	const { username } = useParams();
-
-	// Hook for updating user profile
-	const { updateProfile, isUpdatingProfile } = useUpdateUserProfile(formData);
 
 	// Get Auth User
 	const {data :authUser} = useQuery({
@@ -52,10 +50,13 @@ const ProfilePage = () => {
 				}
 				return data;
 			} catch (error) {
-				throw error;b  
+				throw error;
 			}
 		}
 	});
+	
+	// Hook for updating user profile
+	const { updateProfile, isUpdatingProfile } = useUpdateUserProfile();
 
 	useEffect(() => {
 		refetch(); //refetch the data when username changes
@@ -159,8 +160,10 @@ const ProfilePage = () => {
 								{(coverImg || profileImg) && (
 									<button
 										className='btn btn-primary rounded-full btn-sm text-white px-4 ml-2'
-										onClick={() => {
-											updateProfile()
+										onClick={ async () => {
+											await updateProfile({coverImg, profileImg});
+											setCoverImg(null);
+											setProfileImg(null);
 										}}
 									>
 										{isUpdatingProfile && <LoadingSpinner size="sm" />}

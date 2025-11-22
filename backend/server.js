@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path'; //path from express
 import authRoute from './routes/auth.route.js'; // include .js extension
 import userRoute from './routes/user.route.js'; // Example for user routes
 import postRoute from './routes/post.route.js'; // Example for post routes
@@ -11,6 +12,7 @@ import { v2 as cloudinary } from 'cloudinary'; //importing cloudinary
 
 // Create Express app
 const app = express();
+const __dirname = path.resolve(); // Get current directory path
 
 // Configure Cloudinary
 cloudinary.config({
@@ -41,9 +43,19 @@ app.use('/api/users', userRoute); // Example for user routes
 app.use('/api/posts', postRoute); // Example for post routes
 app.use('/api/notifications', notificationRoute); // Example for notification routes
 
+//deployment
+if(process.env.NODE_ENV === 'production'){
+  app.use(express.static(path.join(__dirname, '/frontend/build'))); //serving static files
+  app.use(/.*/, (req, res) => {
+    res.sendFile(path.resolve(__dirname, "frontend", "build", "index.html"));
+  })
+}
+
 
 app.listen(PORT, () => {
   console.log('Server is running on port', PORT);
   //connecting to the mongodb once the server is ran.
   connectDB(); //calling the function
 });
+
+

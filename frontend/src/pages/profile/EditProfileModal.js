@@ -14,7 +14,7 @@ const EditProfileModal = () => {
 		currentPassword: "",
 	});
 
-	const { updateProfile, isUpdatingProfile } = useUpdateUserProfile(formData);
+	const { updateProfile, isUpdatingProfile } = useUpdateUserProfile();
 	// Get Auth User
 	const {data :authUser} = useQuery({
 		queryKey: ["authUser"]
