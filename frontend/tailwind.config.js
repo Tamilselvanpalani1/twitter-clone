@@ -1,13 +1,10 @@
-// import daisyUIThemes from 'daisyui/src/theming/themes';
-
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./index.html",               // If using Vite or plain HTML
-    "./src/**/*.{js,ts,jsx,tsx}", // Adjust based on your framework (React, Vue, etc.)
+    "./src/**/*.{js,jsx,ts,tsx}"
   ],
   theme: {
-    extend: {}
+    extend: {},
   },
-  plugins: [require('daisyui')]
+  plugins: [require("daisyui")],
 };
